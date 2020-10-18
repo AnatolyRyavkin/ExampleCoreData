@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="17192" systemVersion="19F96" minimumToolsVersion="Automatic" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="">
+    <entity name="AbstractEntity" representedClassName="AbstractEntity" isAbstract="YES" syncable="YES"/>
+    <entity name="Bank" representedClassName="Bank" parentEntity="AbstractEntity" syncable="YES">
+        <attribute name="name" optional="YES" attributeType="String" defaultValueString="Bank"/>
+        <relationship name="clients" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Client" inverseName="bank" inverseEntity="Client"/>
+        <relationship name="stories" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Story" inverseName="bank" inverseEntity="Story"/>
+    </entity>
+    <entity name="Client" representedClassName="Client" parentEntity="AbstractEntity" syncable="YES">
+        <attribute name="cache" attributeType="Integer 32" minValueString="0" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="creditHistory" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="name" attributeType="String" defaultValueString="Client"/>
+        <attribute name="region" attributeType="String" defaultValueString="region"/>
+        <relationship name="bank" maxCount="1" deletionRule="Nullify" destinationEntity="Bank" inverseName="clients" inverseEntity="Bank"/>
+        <relationship name="stories" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Story" inverseName="clients" inverseEntity="Story"/>
+    </entity>
+    <entity name="Story" representedClassName="Story" parentEntity="AbstractEntity" syncable="YES">
+        <attribute name="lavelCreditHistory" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="levelCache" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="name" attributeType="String" defaultValueString="Story"/>
+        <attribute name="region" attributeType="String" defaultValueString="region"/>
+        <relationship name="bank" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Bank" inverseName="stories" inverseEntity="Bank"/>
+        <relationship name="clients" toMany="YES" deletionRule="Nullify" destinationEntity="Client" inverseName="stories" inverseEntity="Client"/>
+    </entity>
+    <elements>
+        <element name="AbstractEntity" positionX="-2341.89453125" positionY="-24658.16796875" width="128" height="43"/>
+        <element name="Bank" positionX="-2340.74609375" positionY="-24436.671875" width="128" height="28"/>
+        <element name="Client" positionX="-2694.16015625" positionY="-24248.3046875" width="128" height="28"/>
+        <element name="Story" positionX="-2043.5234375" positionY="-24254.4609375" width="128" height="28"/>
+    </elements>
+</model>
