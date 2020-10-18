@@ -20,7 +20,7 @@
 }
 
 +(void)deleteBase{
-    
+    Story.count = 0;
     [Client bankDel];
     PersistentManager* pm = PersistentManager.Shared;
     [pm removeBase];

@@ -15,10 +15,19 @@
 #import "CreatorBaseData.h"
 
 
+typedef enum {
+    ModeTableRegion = 0,
+    ModeTableCache,
+    ModeTableCreditHistory,
+    ModeTableName
+} ModeTable;
+
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface DelegateDataSourceDelegateFetchResControllertTableClients : NSObject<UITableViewDelegate,UITableViewDataSource,NSFetchedResultsControllerDelegate>;
+
+@property (class) ModeTable modeTable;
 
 @property (nonatomic) UITableView*tableView;
 @property (nullable,nonatomic) NSFetchedResultsController<Client *>* fetchControllerClient;

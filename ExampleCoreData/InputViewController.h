@@ -8,6 +8,7 @@
 #import <UIKit/UIKit.h>
 #import "DelegateDataSourceDelegateFetchResControllertTableClients.h"
 #import "CreatorBaseData.h"
+#import "StoriesViewController.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

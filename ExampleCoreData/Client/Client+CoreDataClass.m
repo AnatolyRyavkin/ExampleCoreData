@@ -38,7 +38,9 @@ static Bank* _bank;
     _bank = nil;
 }
 
--(id)initWithContext:(NSManagedObjectContext *)context{
+
+
+-(id)initWithContext:(NSManagedObjectContext *)context {
     self = [super initWithContext:context];
     if(self)
         [self customising];

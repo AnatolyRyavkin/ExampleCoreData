@@ -15,6 +15,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface Story : AbstractEntity
 
+@property (class) int count;
+
 -(id)initWithContext:(NSManagedObjectContext *)context;
 
 @end

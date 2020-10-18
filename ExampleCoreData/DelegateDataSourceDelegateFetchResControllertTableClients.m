@@ -7,16 +7,9 @@
 
 #import "DelegateDataSourceDelegateFetchResControllertTableClients.h"
 
-typedef enum {
-    ModeTableRegion = 0,
-    ModeTableCache,
-    ModeTableCreditHistory
-} ModeTable;
-
 NS_ASSUME_NONNULL_BEGIN
 @interface DelegateDataSourceDelegateFetchResControllertTableClients()
 
-@property ModeTable modeTable;
 
 @end
 NS_ASSUME_NONNULL_END
@@ -24,13 +17,23 @@ NS_ASSUME_NONNULL_END
 
 @implementation DelegateDataSourceDelegateFetchResControllertTableClients
 
+static ModeTable _modeTable;
+
 - (instancetype)init
 {
     self = [super init];
     if (self) {
-        //NSLog(@"Init DelegateDataSourceDelegateFetchResControllertTableClients");
+        _modeTable = ModeTableName;
     }
     return self;
+}
+
++ (ModeTable)modeTable {
+    return _modeTable;
+}
+
++ (void)setModeTable:(ModeTable)newModeTable {
+    _modeTable = newModeTable;
 }
 
 +(DelegateDataSourceDelegateFetchResControllertTableClients*)Shared{
@@ -39,7 +42,6 @@ NS_ASSUME_NONNULL_END
     dispatch_once(&onceToken, ^{
         manager = [[DelegateDataSourceDelegateFetchResControllertTableClients alloc]init];
         FetchControllersTableClients.Shared.fetchedResultsController1.delegate = manager;
-        manager.modeTable = ModeTableCache;
     });
     return manager;
 }
@@ -61,49 +63,22 @@ NS_ASSUME_NONNULL_END
 
 - (NSInteger)tableView:(nonnull UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 
-    NSInteger num;
-    id <NSFetchedResultsSectionInfo> sectionInfo;
-    switch (self.modeTable) {
-        case ModeTableRegion:
-            num = 10; // fetchRequest...
-            break;
-        case ModeTableCache:
-            sectionInfo = [self.fetchControllerClient sections][section];
-            num = [sectionInfo numberOfObjects];
-            break;
-        case ModeTableCreditHistory:
-            num = 10; // fetchRequest...
-            break;
-        default:
-            break;
-    }
-    return num;
+    return [[self.fetchControllerClient sections][section] numberOfObjects];
 
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
-    NSInteger num;
-    switch (self.modeTable) {
-        case ModeTableRegion:
-            num = 1; // fetchRequest...
-            break;
-        case ModeTableCache:
-            num = [[self.fetchControllerClient sections] count];
-            break;
-        case ModeTableCreditHistory:
-            num = 1; // fetchRequest...
-            break;
-        default:
-            break;
-    }
 
-    return num;
+    return [[self.fetchControllerClient sections] count];
 }
 
 
 - (nullable NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section{
-    id <NSFetchedResultsSectionInfo> sectionInfo = [self.fetchControllerClient sections][section];
-    return @"Header";//[sectionInfo name];
+
+    if(DelegateDataSourceDelegateFetchResControllertTableClients.modeTable == ModeTableCreditHistory) {
+        return ([[self.fetchControllerClient sections][section].name  isEqual: @"0"]) ? @"Bad history" : @"Good history";
+    }
+    return [self.fetchControllerClient sections][section].name;
 
 }
 
@@ -116,8 +91,25 @@ NS_ASSUME_NONNULL_END
 }
 
 - (void)configureCell:(UITableViewCell *)cell withClient:(Client*)client {
-    cell.textLabel.text = [NSString stringWithFormat:@"%@", client.name];
-    cell.detailTextLabel.text = [NSString stringWithFormat:@"%i", client.cache];
+    switch (DelegateDataSourceDelegateFetchResControllertTableClients.modeTable) {
+        case ModeTableName:
+            cell.textLabel.text = [NSString stringWithFormat:@"%@", client.name];
+            break;
+        case ModeTableCache:
+            cell.textLabel.text = [NSString stringWithFormat:@"%@", client.name];
+            cell.detailTextLabel.text = [NSString stringWithFormat:@"%i", client.cache];
+            break;
+        case ModeTableRegion:
+            cell.textLabel.text = [NSString stringWithFormat:@"%@", client.name];
+            cell.detailTextLabel.text = [NSString stringWithFormat:@"%@", client.region];
+            break;
+        case ModeTableCreditHistory:
+            cell.textLabel.text = [NSString stringWithFormat:@"%@", client.name];
+            cell.detailTextLabel.text = [NSString stringWithFormat:@"%@", (client.creditHistory == YES) ? @"GOOD" : @"BAD" ];
+            break;
+        default:
+            break;
+    }
 }
 
 - (UITableViewCell*)cell:(UITableView *) tableView {
@@ -127,6 +119,7 @@ NS_ASSUME_NONNULL_END
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:@"idCellUser"];
     }else{
         cell.textLabel.text = @"";
+        cell.detailTextLabel.text = @"";
     }
     return  cell;
 }
@@ -197,27 +190,50 @@ NS_ASSUME_NONNULL_END
 }
 
 
-- (void)actionStoriesController {
-    NSLog(@"actionStoriesController");
-}
+#pragma mark - ChangeMode
+
+
 
 - (void)actionModeRegion {
     NSLog(@"actionModeRegion");
+    [self deleteFethedController];
+    DelegateDataSourceDelegateFetchResControllertTableClients.modeTable = ModeTableRegion;
+    FetchControllersTableClients.Shared.fetchedResultsController1.delegate = self;
+    [self.tableView reloadData];
+
+}
+
+- (void)actionModeName {
+    NSLog(@"actionModeName");
+    [self deleteFethedController];
+    DelegateDataSourceDelegateFetchResControllertTableClients.modeTable = ModeTableName;
+    FetchControllersTableClients.Shared.fetchedResultsController1.delegate = self;
+    [self.tableView reloadData];
 }
 
 
 - (void)actionModeCache {
     NSLog(@"actionModeCache");
+    [self deleteFethedController];
+    DelegateDataSourceDelegateFetchResControllertTableClients.modeTable = ModeTableCache;
+    FetchControllersTableClients.Shared.fetchedResultsController1.delegate = self;
+    [self.tableView reloadData];
 }
 
 
 - (void)actionModeHistory {
     NSLog(@"actionModeHistory");
+    [self deleteFethedController];
+    DelegateDataSourceDelegateFetchResControllertTableClients.modeTable = ModeTableCreditHistory;
+    FetchControllersTableClients.Shared.fetchedResultsController1.delegate = self;
+    [self.tableView reloadData];
 }
+
+#pragma mark - WorkWithBase
+
 
 - (void)actionCleanBase {
     NSLog(@"actionCleanBase");
-    
     [CreatorBaseData deleteBase];
     [self deleteFethedController];
     [self.tableView reloadData];
@@ -239,17 +255,11 @@ NS_ASSUME_NONNULL_END
         FetchControllersTableClients.Shared.fetchedResultsController1.delegate = self;
     }
     [PersistentManager.Shared performBlockAndSaveContext:^(NSManagedObjectContext * _Nonnull context) {
-        [[Client alloc] initWithContext:context];
+         [[Client alloc] initWithContext:context];
     }];
 
 }
 
 
-
 @end
-
-
-
-
-
 

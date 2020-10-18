@@ -43,7 +43,7 @@
     
     self.navigationItem.title = @"Bank";
     UIBarButtonItem* barButtonStories = [[UIBarButtonItem alloc] initWithTitle:@"Stories" style:UIBarButtonItemStylePlain
-                                        target: self.delegDataSourceDelegFetchTableClients action: NSSelectorFromString(@"actionStoriesController")];
+                                        target: self action: NSSelectorFromString(@"actionStoriesController")];
     UIBarButtonItem* barButtonUpdateBase = [[UIBarButtonItem alloc] initWithTitle:@"NewBase" style:UIBarButtonItemStylePlain
                                         target: self.delegDataSourceDelegFetchTableClients action: NSSelectorFromString(@"actionNewBase")];
     NSArray* arrayBarButton = [[NSArray alloc] initWithObjects:  barButtonStories,barButtonUpdateBase, nil];
@@ -62,22 +62,27 @@
 
 
     UIButton* buttonModeTableRegion = [[UIButton alloc]init];
-    [buttonModeTableRegion setTitle:@"SortRegion" forState:UIControlStateNormal];
+    [buttonModeTableRegion setTitle:@"Region" forState:UIControlStateNormal];
     [buttonModeTableRegion setTitle:@"Sort" forState:UIControlStateHighlighted];
     [buttonModeTableRegion addTarget: self.delegDataSourceDelegFetchTableClients action:NSSelectorFromString(@"actionModeRegion") forControlEvents:UIControlEventTouchUpInside];
 
     UIButton* buttonModeTableCache = [[UIButton alloc]init];
-    [buttonModeTableCache setTitle:@"SortCache" forState:UIControlStateNormal];
+    [buttonModeTableCache setTitle:@"Cache" forState:UIControlStateNormal];
     [buttonModeTableCache setTitle:@"Sort" forState:UIControlStateHighlighted];
     [buttonModeTableCache addTarget: self.delegDataSourceDelegFetchTableClients action:NSSelectorFromString(@"actionModeCache") forControlEvents:UIControlEventTouchUpInside];
 
+    UIButton* buttonModeTableName = [[UIButton alloc]init];
+    [buttonModeTableName setTitle:@"Name" forState:UIControlStateNormal];
+    [buttonModeTableName setTitle:@"Sort" forState:UIControlStateHighlighted];
+    [buttonModeTableName addTarget: self.delegDataSourceDelegFetchTableClients action:NSSelectorFromString(@"actionModeName") forControlEvents:UIControlEventTouchUpInside];
+
 
     UIButton* buttonModeTableCreditHistory = [[UIButton alloc]init];
-    [buttonModeTableCreditHistory setTitle:@"SortCreditHistory" forState:UIControlStateNormal];
+    [buttonModeTableCreditHistory setTitle:@"CredHist" forState:UIControlStateNormal];
     [buttonModeTableCreditHistory setTitle:@"Sort" forState:UIControlStateHighlighted];
     [buttonModeTableCreditHistory addTarget: self.delegDataSourceDelegFetchTableClients action:NSSelectorFromString(@"actionModeHistory") forControlEvents:UIControlEventTouchUpInside];
     
-    self.arrayButtonsMode = [[NSArray alloc]initWithObjects:buttonModeTableRegion, buttonModeTableCache, buttonModeTableCreditHistory, nil];
+    self.arrayButtonsMode = [[NSArray alloc]initWithObjects:buttonModeTableRegion, buttonModeTableCache, buttonModeTableCreditHistory, buttonModeTableName, nil];
 
     self.viewHeader = [[UIView alloc]initWithFrame:CGRectZero];
     self.viewHeader.backgroundColor = [UIColor darkGrayColor];
@@ -95,10 +100,10 @@
     CGFloat offsetButtonX = CGRectGetWidth(rectHeader)/20;
     CGFloat offsetButtonY = CGRectGetHeight(rectHeader)/20;
     CGSize sizeButton;
-    sizeButton.width = (CGRectGetWidth(rectHeader) - 4*offsetButtonX)/3;
+    sizeButton.width = (CGRectGetWidth(rectHeader) - 5*offsetButtonX)/4;
     sizeButton.height = (CGRectGetHeight(rectHeader)) - 2*offsetButtonY;
 
-    for (int i=0;i<3;i++){
+    for (int i=0;i<4;i++){
         UIButton* buttonMode = self.arrayButtonsMode[i];
         buttonMode.frame = CGRectMake(CGRectGetMinX(self.viewHeader.bounds) + offsetButtonX*(i+1) + sizeButton.width*i, CGRectGetMinY(self.viewHeader.bounds) + offsetButtonY
                                       , sizeButton.width, sizeButton.height);
@@ -109,6 +114,15 @@
     self.tableView.frame = CGRectMake(CGRectGetMinX(self.view.bounds), CGRectGetMinY(self.view.bounds) + offsetUp + rectHeader.size.height,
                     CGRectGetWidth(self.view.bounds), CGRectGetHeight(self.view.bounds) - (offsetUp + rectHeader.size.height));
     [self.view addSubview:self.tableView];
+
+}
+
+
+
+- (void)actionStoriesController {
+    NSLog(@"actionStoriesController");
+
+    [self.navigationController pushViewController: [StoriesViewController new] animated: YES];
 
 }
 

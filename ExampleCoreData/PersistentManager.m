@@ -8,6 +8,7 @@
 #import "PersistentManager.h"
 
 @implementation NSManagedObjectContext(SaveIfNeeded)
+
 -(BOOL) saveIfNeeded{
     BOOL toReturn = YES;
     if ([self hasChanges]) {
@@ -20,6 +21,7 @@
     }
     return toReturn;
 }
+
 @end
 
 

@@ -10,7 +10,15 @@
 
 @implementation Story
 
-static int count = 0;
+static int _count = 0;
+
++(int)count {
+    return _count;
+}
++(void)setCount: (int)newCount {
+    _count = newCount;
+}
+
 
 -(id)initWithContext:(NSManagedObjectContext *)context{
     self = [super initWithContext:context];
@@ -20,8 +28,8 @@ static int count = 0;
 }
 
 -(void)customising {
-    self.name = [NSString stringWithFormat:@"Client%d",count];
-    count++;
+    self.name = [NSString stringWithFormat:@"Story%d",Story.count];
+    Story.count++;
     self.lavelCreditHistory = (arc4random_uniform(1000)%2 == 0) ? YES : NO;
     self.levelCache = (arc4random_uniform(1000)%2 == 0) ? YES : NO;
     self.region = [NSString stringWithFormat:@"Region%d",arc4random_uniform(10)];

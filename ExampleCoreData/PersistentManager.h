@@ -19,6 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 +(PersistentManager*)Shared;
 -(void)removeBase;
+-(void)saveContext;
 
 @end
 
