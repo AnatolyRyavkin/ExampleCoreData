@@ -14,7 +14,7 @@
 
     [CreatorBaseData deleteBase];
     [PersistentManager.Shared performBlockAndSaveContext:^(NSManagedObjectContext * _Nonnull context) {
-        [[Bank alloc] initWithContext:context withNameBank: @"BANK" withCountClients:10];
+        [[Bank alloc] initWithContext:context withNameBank: @"BANK" withCountClients:100];
     }];
 
 }

@@ -10,7 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface StoriesViewController : UIViewController<UITableViewDataSource>
+@interface StoriesViewController : UIViewController<UITableViewDataSource,UITableViewDelegate>
 
 @property (nonatomic) UITableView* tableView;
 

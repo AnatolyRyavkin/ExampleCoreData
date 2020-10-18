@@ -126,6 +126,39 @@ static ModeTable _modeTable;
 
 #pragma mark - Delegate
 
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+
+    Client*client = [self.fetchControllerClient objectAtIndexPath:indexPath];
+
+    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Story"];
+    request.resultType= NSManagedObjectResultType;
+    NSSortDescriptor*sortDescriptor = [[NSSortDescriptor alloc]initWithKey:@"name" ascending:YES];
+    request.sortDescriptors=@[sortDescriptor];
+    NSPredicate* predicate = [NSPredicate predicateWithFormat:@"lavelCreditHistory=%d&&region=%@",client.creditHistory,client.region];
+    //NSPredicate* predicate = [NSPredicate predicateWithFormat:@"region=%@",client.region];
+    request.predicate = predicate;
+
+    NSError*error=nil;
+    NSArray<Story*>*arrayResult = [PersistentManager.Shared.persistentContainer.viewContext executeFetchRequest:request error:&error];
+    if(error!=nil)
+        NSLog(@"error=%@",error);
+
+    UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Stories to predicate REGION & CREDITHISTORY" message: [NSString stringWithFormat:@" %@ - credHist%D",
+                                                                        client.region,client.creditHistory] preferredStyle:UIAlertControllerStyleAlert];
+    for (Story* story in arrayResult){
+        [alert addAction: [UIAlertAction actionWithTitle: [NSString stringWithFormat:@"%@ --- %@ --- %d", story.name,story.region,client.creditHistory] style:UIAlertActionStyleDefault handler:nil]];
+    }
+    [alert addAction: [UIAlertAction actionWithTitle: @"EXIT" style:UIAlertActionStyleDefault handler:nil]];
+
+    UIWindow* window = [UIApplication.sharedApplication.windows firstObject];
+    UINavigationController* nc = (UINavigationController*) window.rootViewController;
+    UIViewController* vc = [nc visibleViewController];
+    [vc presentViewController: alert animated:YES completion:nil];
+
+
+}
+
 - (nullable NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath{
     return @"Del";
 }

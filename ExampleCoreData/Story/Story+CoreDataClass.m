@@ -28,11 +28,11 @@ static int _count = 0;
 }
 
 -(void)customising {
-    self.name = [NSString stringWithFormat:@"Story%d",Story.count];
+    self.name = (Story.count < 10) ? [NSString stringWithFormat:@"Story-0%d",Story.count] : [NSString stringWithFormat:@"Story-%d",Story.count];
     Story.count++;
     self.lavelCreditHistory = (arc4random_uniform(1000)%2 == 0) ? YES : NO;
     self.levelCache = (arc4random_uniform(1000)%2 == 0) ? YES : NO;
-    self.region = [NSString stringWithFormat:@"Region%d",arc4random_uniform(10)];
+    self.region = [NSString stringWithFormat:@"Region%d", arc4random_uniform(10)];
 }
 
 @end

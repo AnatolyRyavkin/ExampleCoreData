@@ -24,7 +24,7 @@
     if (!_arrayStories){
         NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Story"];
         request.resultType= NSManagedObjectResultType;
-        NSSortDescriptor*sortDescriptor = [[NSSortDescriptor alloc]initWithKey:@"levelCache" ascending:YES];
+        NSSortDescriptor*sortDescriptor = [[NSSortDescriptor alloc]initWithKey:@"name" ascending:YES];
         request.sortDescriptors=@[sortDescriptor];
         NSError*error=nil;
         NSArray<Story*>*arrayResult = [PersistentManager.Shared.persistentContainer.viewContext executeFetchRequest:request error:&error];
@@ -40,6 +40,7 @@
 
     self.tableView = [[UITableView alloc]initWithFrame: CGRectZero style:UITableViewStylePlain];
     self.tableView.dataSource = self;
+    self.tableView.delegate = self;
     self.navigationItem.title = @"Stories sorting at Cache";
     UIBarButtonItem* barButtonFillStories = [[UIBarButtonItem alloc] initWithTitle:@"fillStories" style:UIBarButtonItemStylePlain
                                         target: self action: NSSelectorFromString(@"actionFillStories")];
@@ -63,16 +64,17 @@
 
     Story* story = self.arrayStories[indexPath.row];
     NSString* name = story.name;
-    NSString* levelCreditHistory = (story.lavelCreditHistory == YES) ? @"HisG" : @"HisB";
+    NSString* levelCreditHistory = (story.lavelCreditHistory == YES) ? @"GOOD" : @"BAD";
     NSString* region = story.region;
-    NSString* levelCache = (story.levelCache == YES) ? @"CashH" : @"CachL";
-    if([story.name length] == 6)
-        cell.textLabel.text = [NSString stringWithFormat:@"%@            %@         %@",name, levelCreditHistory, levelCache];
-    else
-        cell.textLabel.text = [NSString stringWithFormat:@"%@           %@         %@",name, levelCreditHistory, levelCache];
+    NSString* levelCache = (story.levelCache == YES) ? @"big" : @"Lit";
+    cell.textLabel.text = [NSString stringWithFormat:@"%@           %@            %@",name,levelCache,levelCreditHistory];
     cell.detailTextLabel.text = region;
     return  cell;
 
+}
+
+- (nullable NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section{
+    return @"Name             Cache  CreditHistory          Region";
 }
 
 - (NSInteger)tableView:(nonnull UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -97,6 +99,44 @@
     });
 
 }
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+
+    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Story"];
+    NSSortDescriptor*sortDescriptor = [[NSSortDescriptor alloc]initWithKey:@"name" ascending:YES];
+    request.sortDescriptors=@[sortDescriptor];
+    NSError*error=nil;
+    NSArray<Story*>*arrayResult = [PersistentManager.Shared.persistentContainer.viewContext executeFetchRequest:request error:&error];
+    if(error!=nil)
+        NSLog(@"error=%@",error);
+
+    Story*story = arrayResult[indexPath.row];
+
+    NSFetchRequest *request1 = [NSFetchRequest fetchRequestWithEntityName:@"Client"];
+    request1.sortDescriptors=@[sortDescriptor];
+    NSPredicate* predicate = [NSPredicate predicateWithFormat:@"creditHistory=%d&&region=%@",story.lavelCreditHistory,story.region];
+    request1.predicate = predicate;
+    [request setIncludesPendingChanges:YES];
+
+    NSArray<Client*>*arrayResult1 = [PersistentManager.Shared.persistentContainer.viewContext executeFetchRequest:request1 error:&error];
+    if(error!=nil)
+        NSLog(@"error=%@",error);
+
+    UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Stories to predicate REGION & CREDITHISTORY" message: [NSString stringWithFormat:@" %@ - credHist%D",
+                                                                                story.region,story.lavelCreditHistory] preferredStyle:UIAlertControllerStyleAlert];
+    for (Client* client in arrayResult1){
+        [alert addAction: [UIAlertAction actionWithTitle: [NSString stringWithFormat:@"%@ --- %@ --- %d", client.name,client.region,client.creditHistory] style:UIAlertActionStyleDefault handler:nil]];
+    }
+    [alert addAction: [UIAlertAction actionWithTitle: @"EXIT" style:UIAlertActionStyleDefault handler:nil]];
+
+    UIWindow* window = [UIApplication.sharedApplication.windows firstObject];
+    UINavigationController* nc = (UINavigationController*) window.rootViewController;
+    UIViewController* vc = [nc visibleViewController];
+    [vc presentViewController: alert animated:YES completion:nil];
+
+}
+
 
 
 @end
