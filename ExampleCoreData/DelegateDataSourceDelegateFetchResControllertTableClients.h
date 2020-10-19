@@ -10,7 +10,6 @@
 #import <CoreData/CoreData.h>
 #import "Client+CoreDataClass.h"
 #import "PersistentManager.h"
-#import "DataManagerTableClient.h"
 #import "FetchControllersTableClients.h"
 #import "CreatorBaseData.h"
 
