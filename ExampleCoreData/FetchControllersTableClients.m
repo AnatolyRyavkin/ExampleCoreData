@@ -12,7 +12,7 @@
 
 @implementation FetchControllersTableClients
 
-@synthesize fetchedResultsController1 = _fetchedResultsController1;
+@synthesize fetchedResultsController = _fetchedResultsController;
 
 +(FetchControllersTableClients*)Shared{
     static FetchControllersTableClients*manager = nil;
@@ -23,11 +23,11 @@
     return manager;
 }
 
-#pragma mark - Fetched results controller
+#pragma mark - Fetched results controller 
 
-- (NSFetchedResultsController<Client *> *)fetchedResultsController1 {
-    if (_fetchedResultsController1 != nil) {
-        return _fetchedResultsController1;
+- (NSFetchedResultsController<Client *> *)fetchedResultsController {
+    if (_fetchedResultsController != nil) {
+        return _fetchedResultsController;
     }
 
     NSFetchRequest<Client *> *fetchRequest = Client.fetchRequest;
@@ -59,23 +59,21 @@
     [fetchRequest setSortDescriptors:@[sortDescriptor]];
 
     NSFetchedResultsController<Client *> *fetchResContr = [[NSFetchedResultsController alloc] initWithFetchRequest: fetchRequest
-                                                managedObjectContext: PersistentManager.Shared.persistentContainer.viewContext
-                                                sectionNameKeyPath: sectionNameKeyPatch
-                                                cacheName: nil];
-
-
+                                                    managedObjectContext: PersistentManager.Shared.context
+                                                    sectionNameKeyPath: sectionNameKeyPatch
+                                                    cacheName: nil];
     NSError* error = nil;
     if (![fetchResContr performFetch:&error]) {
         NSLog(@"Unresolved error %@, %@", error, error.userInfo);
         abort();
     }
-        _fetchedResultsController1 = fetchResContr;
-    return _fetchedResultsController1;
+        _fetchedResultsController = fetchResContr;
+    return _fetchedResultsController;
 }
 
 
--(void)removeFetchedResultsController1 {
-    _fetchedResultsController1 = nil;
+-(void)removeFetchedResultsController {
+    _fetchedResultsController = nil;
 }
 
 

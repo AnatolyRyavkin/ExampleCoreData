@@ -16,28 +16,6 @@
 
 @implementation Client
 
-static int count = 0;
-
-static Bank* _bank;
-
-+ (Bank *)bank {
-    if (!_bank){
-        //[PersistentManager.Shared performBlockAndSaveContext:^(NSManagedObjectContext * _Nonnull context) {
-        NSManagedObjectContext * _Nonnull context = PersistentManager.Shared.persistentContainer.viewContext;
-        _bank = [[Bank alloc]initWithContext: context withNameBank:@"Bank"];
-        //}];
-
-    }
-    return _bank;
-}
-+ (void)setBank:(Bank *)newBank {
-    _bank = newBank;
-}
-
-+(void)bankDel {
-    _bank = nil;
-}
-
 
 
 -(id)initWithContext:(NSManagedObjectContext *)context {
@@ -49,11 +27,9 @@ static Bank* _bank;
 
 -(void)customising {
     self.name = [self makeName];
-    count++;
     self.creditHistory = (arc4random_uniform(1000)%2 == 0) ? YES : NO;
     self.cache = (arc4random_uniform(1000000000));
     self.region = [NSString stringWithFormat:@"Region%d",arc4random_uniform(10)];
-    self.bank = Client.bank;
 }
 
 -(NSString*)makeName {

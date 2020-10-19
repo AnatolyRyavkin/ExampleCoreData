@@ -10,7 +10,7 @@
 #import "Client+CoreDataClass.h"
 #import "Story+CoreDataClass.h"
 #import "PersistentManager.h"
-
+ 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface CreatorBaseData : NSObject

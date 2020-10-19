@@ -10,6 +10,7 @@
 NS_ASSUME_NONNULL_BEGIN
 @interface DelegateDataSourceDelegateFetchResControllertTableClients()
 
+@property (nullable,nonatomic) NSFetchedResultsController<Client *>* fetchControllerClient;
 
 @end
 NS_ASSUME_NONNULL_END
@@ -41,20 +42,20 @@ static ModeTable _modeTable;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         manager = [[DelegateDataSourceDelegateFetchResControllertTableClients alloc]init];
-        FetchControllersTableClients.Shared.fetchedResultsController1.delegate = manager;
+        FetchControllersTableClients.Shared.fetchedResultsController.delegate = manager;
     });
     return manager;
 }
 
 -(NSFetchedResultsController*)fetchControllerClient{
     if(_fetchControllerClient == nil){
-        _fetchControllerClient = FetchControllersTableClients.Shared.fetchedResultsController1;
+        _fetchControllerClient = FetchControllersTableClients.Shared.fetchedResultsController;
     }
     return _fetchControllerClient;
 }
 
 -(void)deleteFethedController {
-    [FetchControllersTableClients.Shared removeFetchedResultsController1];
+    [FetchControllersTableClients.Shared removeFetchedResultsController];
     _fetchControllerClient = nil;
 }
 
@@ -136,28 +137,38 @@ static ModeTable _modeTable;
     NSSortDescriptor*sortDescriptor = [[NSSortDescriptor alloc]initWithKey:@"name" ascending:YES];
     request.sortDescriptors=@[sortDescriptor];
     NSPredicate* predicate = [NSPredicate predicateWithFormat:@"lavelCreditHistory=%d&&region=%@",client.creditHistory,client.region];
-    //NSPredicate* predicate = [NSPredicate predicateWithFormat:@"region=%@",client.region];
     request.predicate = predicate;
 
-    NSError*error=nil;
-    NSArray<Story*>*arrayResult = [PersistentManager.Shared.persistentContainer.viewContext executeFetchRequest:request error:&error];
-    if(error!=nil)
-        NSLog(@"error=%@",error);
+    __block NSArray<Story*>*arrayResult;
 
-    UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Stories to predicate REGION & CREDITHISTORY" message: [NSString stringWithFormat:@" %@ - credHist%D",
-                                                                        client.region,client.creditHistory] preferredStyle:UIAlertControllerStyleAlert];
-    for (Story* story in arrayResult){
-        [alert addAction: [UIAlertAction actionWithTitle: [NSString stringWithFormat:@"%@ --- %@ --- %d", story.name,story.region,client.creditHistory] style:UIAlertActionStyleDefault handler:nil]];
-    }
-    [alert addAction: [UIAlertAction actionWithTitle: @"EXIT" style:UIAlertActionStyleDefault handler:nil]];
+    [PersistentManager.Shared performBlockAndSaveContextAndPerformCompletedBlockAtMainQueueBlock:^(NSManagedObjectContext * _Nonnull context) {
 
-    UIWindow* window = [UIApplication.sharedApplication.windows firstObject];
-    UINavigationController* nc = (UINavigationController*) window.rootViewController;
-    UIViewController* vc = [nc visibleViewController];
-    [vc presentViewController: alert animated:YES completion:nil];
+        NSError*error=nil;
+        arrayResult = [context executeFetchRequest:request error:&error];
+        if(error!=nil)
+            NSLog(@"error=%@",error);
 
+    } completion:^(NSManagedObjectContext * _Nonnull context) {
+        UIAlertController* alert = [UIAlertController alertControllerWithTitle: [NSString stringWithFormat: @"Stories for %@ to predicate REGION & CREDITHISTORY", client.name]
+                                                                       message: [NSString stringWithFormat:@" %@ - credHist%D",
+                                                                            client.region,client.creditHistory] preferredStyle:UIAlertControllerStyleAlert];
+        for (Story* story in arrayResult){
+            [alert addAction: [UIAlertAction actionWithTitle: [NSString stringWithFormat:@"%@ --- %@ --- %d", story.name,story.region,client.creditHistory] style:UIAlertActionStyleDefault handler:nil]];
+        }
+        if(arrayResult.count == 0){
+            [alert addAction: [UIAlertAction actionWithTitle: @"" style: UIAlertActionStyleDefault handler:nil]];
+            [alert addAction: [UIAlertAction actionWithTitle: @"dont clients" style: UIAlertActionStyleDefault handler:nil]];
+        }
+        [alert addAction: [UIAlertAction actionWithTitle: @"EXIT" style:UIAlertActionStyleDefault handler:nil]];
+
+        UIWindow* window = [UIApplication.sharedApplication.windows firstObject];
+        UINavigationController* nc = (UINavigationController*) window.rootViewController;
+        UIViewController* vc = [nc visibleViewController];
+        [vc presentViewController: alert animated:YES completion:nil];
+    }];
 
 }
+
 
 - (nullable NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath{
     return @"Del";
@@ -170,8 +181,8 @@ static ModeTable _modeTable;
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-        Client* client = [self.fetchControllerClient objectAtIndexPath:indexPath];
-        [PersistentManager.Shared performBlockAndSaveContext:^(NSManagedObjectContext * _Nonnull context) {
+        [PersistentManager.Shared performBlockAndSaveContext:PersistentManager.Shared.context withBlock: ^(NSManagedObjectContext * _Nonnull context) {
+            Client* client = [self.fetchControllerClient objectAtIndexPath:indexPath];
             [context deleteObject: client];
         }];
     }
@@ -231,7 +242,7 @@ static ModeTable _modeTable;
     NSLog(@"actionModeRegion");
     [self deleteFethedController];
     DelegateDataSourceDelegateFetchResControllertTableClients.modeTable = ModeTableRegion;
-    FetchControllersTableClients.Shared.fetchedResultsController1.delegate = self;
+    FetchControllersTableClients.Shared.fetchedResultsController.delegate = self;
     [self.tableView reloadData];
 
 }
@@ -240,7 +251,7 @@ static ModeTable _modeTable;
     NSLog(@"actionModeName");
     [self deleteFethedController];
     DelegateDataSourceDelegateFetchResControllertTableClients.modeTable = ModeTableName;
-    FetchControllersTableClients.Shared.fetchedResultsController1.delegate = self;
+    FetchControllersTableClients.Shared.fetchedResultsController.delegate = self;
     [self.tableView reloadData];
 }
 
@@ -249,7 +260,7 @@ static ModeTable _modeTable;
     NSLog(@"actionModeCache");
     [self deleteFethedController];
     DelegateDataSourceDelegateFetchResControllertTableClients.modeTable = ModeTableCache;
-    FetchControllersTableClients.Shared.fetchedResultsController1.delegate = self;
+    FetchControllersTableClients.Shared.fetchedResultsController.delegate = self;
     [self.tableView reloadData];
 }
 
@@ -258,7 +269,7 @@ static ModeTable _modeTable;
     NSLog(@"actionModeHistory");
     [self deleteFethedController];
     DelegateDataSourceDelegateFetchResControllertTableClients.modeTable = ModeTableCreditHistory;
-    FetchControllersTableClients.Shared.fetchedResultsController1.delegate = self;
+    FetchControllersTableClients.Shared.fetchedResultsController.delegate = self;
     [self.tableView reloadData];
 }
 
@@ -276,7 +287,7 @@ static ModeTable _modeTable;
 - (void)actionNewBase {
     [self deleteFethedController];
     [CreatorBaseData createBase];
-    FetchControllersTableClients.Shared.fetchedResultsController1.delegate = self;
+    FetchControllersTableClients.Shared.fetchedResultsController.delegate = self;
     [self.tableView reloadData];
     NSLog(@"actionMakeBase");
 }
@@ -284,11 +295,16 @@ static ModeTable _modeTable;
 - (void)actionAddClient {
     NSLog(@"actionAddClient");
 
-    if (FetchControllersTableClients.Shared.fetchedResultsController1.delegate == nil) {
-        FetchControllersTableClients.Shared.fetchedResultsController1.delegate = self;
+    if (FetchControllersTableClients.Shared.fetchedResultsController.delegate == nil) {
+        FetchControllersTableClients.Shared.fetchedResultsController.delegate = self;
     }
     [PersistentManager.Shared performBlockAndSaveContext:^(NSManagedObjectContext * _Nonnull context) {
-         [[Client alloc] initWithContext:context];
+        NSError* error = nil;
+        Bank* bank = [context executeFetchRequest:Bank.fetchRequest error:&error].lastObject;
+        if(!bank){
+            bank = [[Bank alloc]initWithContext:context];
+        }
+        [bank addClientsObject:[[Client alloc]initWithContext:context]];
     }];
 
 }

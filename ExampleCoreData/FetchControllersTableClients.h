@@ -15,11 +15,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FetchControllersTableClients : NSObject
 
-@property (strong, nonatomic,nullable) NSFetchedResultsController<Client*>* fetchedResultsController1;
-@property (nullable,nonatomic)PersistentManager* persistentManager;
+@property (strong, nonatomic,nullable) NSFetchedResultsController<Client*>* fetchedResultsController;
 
 +(FetchControllersTableClients*)Shared;
--(void)removeFetchedResultsController1;
+-(void)removeFetchedResultsController;
 
 @end
 

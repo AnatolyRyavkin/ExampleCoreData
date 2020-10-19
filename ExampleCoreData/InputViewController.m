@@ -27,9 +27,6 @@
 
 - (void)loadView {
     [super loadView];
-    
-    //[CreatorBaseData createBase];
-
 }
 
 - (void)viewDidLoad {
@@ -116,8 +113,6 @@
     [self.view addSubview:self.tableView];
 
 }
-
-
 
 - (void)actionStoriesController {
     NSLog(@"actionStoriesController");

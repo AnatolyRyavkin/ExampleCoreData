@@ -7,6 +7,8 @@
 //
 
 #import "Story+CoreDataClass.h"
+#import "PersistentManager.h"
+
 
 @implementation Story
 

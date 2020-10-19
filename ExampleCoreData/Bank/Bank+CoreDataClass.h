@@ -16,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface Bank : AbstractEntity
 
 -(id)initWithContext:(NSManagedObjectContext *)context withNameBank: (NSString*) name;
--(id)initWithContext:(NSManagedObjectContext *)context withNameBank: (NSString*) name withCountClients: (int) num;
+-(id)initWithContext:(NSManagedObjectContext *)context withNameBank: (NSString*) name withCountClients: (int) numClients withCountStory: (int) numStory;
 
 
 

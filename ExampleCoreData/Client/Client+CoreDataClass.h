@@ -15,10 +15,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface Client : AbstractEntity
 
-@property (class, nullable) Bank* bank;
-
-+(void)bankDel;
-
 -(id)initWithContext:(NSManagedObjectContext *)context;
 
 @end

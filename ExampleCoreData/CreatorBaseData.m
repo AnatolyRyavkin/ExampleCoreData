@@ -7,25 +7,25 @@
 
 #import "CreatorBaseData.h"
 
+
 @implementation CreatorBaseData
 
 
 +(void)createBase {
 
     [CreatorBaseData deleteBase];
+
     [PersistentManager.Shared performBlockAndSaveContext:^(NSManagedObjectContext * _Nonnull context) {
-        [[Bank alloc] initWithContext:context withNameBank: @"BANK" withCountClients:100];
+        if([[Bank alloc] initWithContext: context withNameBank: @"BANK" withCountClients:10000 withCountStory: 1000]){}
     }];
 
 }
 
 +(void)deleteBase{
     Story.count = 0;
-    [Client bankDel];
     PersistentManager* pm = PersistentManager.Shared;
     [pm removeBase];
     
 }
-
 
 @end

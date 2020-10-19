@@ -3,29 +3,17 @@
 //  ExampleCoreData
 //
 //  Created by Anatoly Ryavkin on 17.10.2020.
-//
 
 #import "PersistentManager.h"
 
 @implementation NSManagedObjectContext(SaveIfNeeded)
 
- -(BOOL)saveIfNeeded{
-    BOOL toReturn = YES;
-    if ([self hasChanges]) {
-        NSError *error;
-        toReturn = [self save:&error];
-        if (toReturn == NO || error)
-        {
-            NSLog(@"error = %@", error);
-        }
-    }
-    return toReturn;
-}
-
-NSError *error = nil;
-if ([context hasChanges] && ![context save:&error]) {
-    NSLog(@"Unresolved error %@, %@", error, error.userInfo);
-    abort();
+ -(void)save{
+     [self performBlockAndWait:^{
+         NSError *error = nil;
+         if ([self hasChanges] && ![self save:&error])
+             NSLog(@"Unresolved error %@, %@", error, error.userInfo);
+    }];
 }
 
 @end
@@ -52,39 +40,6 @@ if ([context hasChanges] && ![context save:&error]) {
 #pragma mark - Core Data stack
 
 @synthesize persistentContainer = _persistentContainer;
-
--(NSManagedObjectContext*)context {
-    return self.persistentContainer.viewContext;
-}
-
--(NSManagedObjectContext*)contextBackground {
-    return self.persistentContainer.newBackgroundContext;
-}
-
-
--(NSOperationQueue*)persistentContainerQueue {
-    if (!_persistentContainerQueue) {
-    _persistentContainerQueue = [[NSOperationQueue alloc] init];
-    _persistentContainerQueue.maxConcurrentOperationCount = 1;
-    _persistentContainerQueue.name = @"persistentContainerQueue";
-    dispatch_queue_t queue = dispatch_queue_create("dispatch_queue", DISPATCH_QUEUE_SERIAL);
-    _persistentContainerQueue.underlyingQueue = queue;
-    }
-    return  _persistentContainerQueue;
-}
-
-- (void)performBlockAndSaveContext:(void (^)(NSManagedObjectContext* context))block{
-    void (^blockCopy)(NSManagedObjectContext*) = [block copy];
-
-    [self.persistentContainerQueue addOperation:[NSBlockOperation blockOperationWithBlock:^{
-        NSManagedObjectContext* context = self.persistentContainer.viewContext; //self.persistentContainer.newBackgroundContext;
-        [context performBlockAndWait:^{
-            blockCopy(context);
-            [context saveIfNeeded];
-        }];
-    }]];
-}
-
 
 - (NSPersistentContainer *)persistentContainer {
     @synchronized (self) {
@@ -115,6 +70,101 @@ if ([context hasChanges] && ![context save:&error]) {
     return _persistentContainer;
 }
 
+-(NSManagedObjectContext*)context {
+    return self.persistentContainer.viewContext;
+}
+
+-(NSManagedObjectContext*)contextBackground {
+    return self.persistentContainer.newBackgroundContext;
+}
+
+#pragma mark - Queue for perform on background
+
+
+-(NSOperationQueue*)persistentContainerQueue {
+    if (!_persistentContainerQueue) {
+    _persistentContainerQueue = [[NSOperationQueue alloc] init];
+    _persistentContainerQueue.maxConcurrentOperationCount = 1;
+    _persistentContainerQueue.name = @"persistentContainerQueue";
+    dispatch_queue_t queue = dispatch_queue_create("dispatch_queue", DISPATCH_QUEUE_SERIAL);
+    _persistentContainerQueue.underlyingQueue = queue;
+    }
+    return  _persistentContainerQueue;
+}
+
+
+
+#pragma mark - perform block on background at self.persistentContainerQueue, if invoke several times to run SERIAL.
+
+
+- (void)performBlockAndSaveContext:(void (^)(NSManagedObjectContext* context))block{
+    //void (^blockCopy)(NSManagedObjectContext*) = [block copy];
+    __weak PersistentManager* weakSelf = self;
+    [self.persistentContainerQueue addOperation:[NSBlockOperation blockOperationWithBlock:^{
+        NSManagedObjectContext* context = weakSelf.persistentContainer.newBackgroundContext;
+        [context performBlockAndWait:^{
+            block(context);
+            [context save];
+        }];
+    }]];
+}
+
+#pragma mark - sync run, only for context get in same thread were perform!!!
+
+- (void)performBlockAndSaveContext:(NSManagedObjectContext*) context withBlock: (void (^)(NSManagedObjectContext* context))block{
+    //void (^blockCopy)(NSManagedObjectContext*) = [block copy];
+    [self.persistentContainerQueue addOperation:[NSBlockOperation blockOperationWithBlock:^{
+        [context performBlockAndWait:^{
+            block(context);
+            [context save];
+        }];
+    }]];
+}
+
+#pragma mark - async run, only for context get in same thread were perform!!!
+
+- (void)performBlockDontWaitAndSaveContext:(NSManagedObjectContext*) context withBlock: (void (^)(NSManagedObjectContext* context))block{
+    //void (^blockCopy)(NSManagedObjectContext*) = [block copy];
+    [self.persistentContainerQueue addOperation:[NSBlockOperation blockOperationWithBlock:^{
+        [context performBlock:^{
+            block(context);
+            [context save];
+        }];
+    }]];
+}
+
+
+#pragma mark - async perform block, after complition to main
+
+- (void)performBlockAndSaveContextAndPerformCompletedBlockAtMainQueueBlock: (void (^)(NSManagedObjectContext* context)) block
+                                                completion: (void (^)(NSManagedObjectContext* context)) completionBlock{
+    dispatch_async(dispatch_queue_create("q", DISPATCH_QUEUE_SERIAL), ^{
+        __weak PersistentManager* weakSelf = self;
+        NSManagedObjectContext* context = weakSelf.persistentContainer.newBackgroundContext;
+        block(context);
+        [context save];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completionBlock(context);
+        });
+    });
+}
+
+#pragma mark - async perform block, after complition to main
+
+- (void)performBlockAndSaveContextAndPerformCompletedBlockAtMainQueue:(NSManagedObjectContext*) context
+                                                withBlock: (void (^)(NSManagedObjectContext* context)) block
+                                                completion: (void (^)(NSManagedObjectContext* context)) completionBlock{
+    dispatch_async(dispatch_queue_create("q", DISPATCH_QUEUE_SERIAL), ^{
+        block(context);
+        [context save];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completionBlock(context);
+        });
+    });
+}
+
+
+
 #pragma mark - Core Data Saving and remove support
 
 -(void)removeBase{
@@ -124,23 +174,21 @@ if ([context hasChanges] && ![context save:&error]) {
     [[NSFileManager defaultManager] removeItemAtURL:storeURL error: nil];
     NSPersistentStoreCoordinator *storeCoordinator = self.persistentContainer.persistentStoreCoordinator;
     NSPersistentStore *store = [storeCoordinator.persistentStores lastObject];
-    NSError *error = nil;
-    [storeCoordinator removePersistentStore:store error:&error];
+    @try {
+        NSError *error = nil;
+        [storeCoordinator removePersistentStore:store error:&error];
+    }
+    @catch (NSException *exception) {
+        NSLog(@"%@", exception.reason);
+    }
+    @finally {
+        NSLog(@"Finally condition");
+    }
+
     _persistentContainer = nil;
     if (!self.persistentContainer)
         abort();
 }
-
-
--(void)saveContext {
-    NSManagedObjectContext *context = self.persistentContainer.viewContext;
-    NSError *error = nil;
-    if ([context hasChanges] && ![context save:&error]) {
-        NSLog(@"Unresolved error %@, %@", error, error.userInfo);
-        abort();
-    }
-}
-
 
 @end
 

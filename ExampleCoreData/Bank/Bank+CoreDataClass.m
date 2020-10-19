@@ -22,16 +22,16 @@
     return self;
 }
 
--(id)initWithContext:(NSManagedObjectContext *)context withNameBank: (NSString*) name withCountClients: (int) num{
+-(id)initWithContext:(NSManagedObjectContext *)context withNameBank: (NSString*) name withCountClients: (int) numClients withCountStory: (int) numStory{
     self = [super initWithContext:context];
     if(self){
         self.name = name;
-        for (int i=0;i<num;i++) {
+        for (int i=0;i<numClients;i++) {
             Client* client = [[Client alloc]initWithContext:context];
             [self addClientsObject:client];
         }
 
-        for (int i=0;i<100;i++) {
+        for (int i=0;i<numStory;i++) {
             [self addStoriesObject:[[Story alloc]initWithContext:context]];
         }
     }

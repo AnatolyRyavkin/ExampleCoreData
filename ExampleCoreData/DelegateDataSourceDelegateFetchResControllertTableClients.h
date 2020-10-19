@@ -30,7 +30,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (class) ModeTable modeTable;
 
 @property (nonatomic) UITableView*tableView;
-@property (nullable,nonatomic) NSFetchedResultsController<Client *>* fetchControllerClient;
 
 +(DelegateDataSourceDelegateFetchResControllertTableClients*)Shared;
 
