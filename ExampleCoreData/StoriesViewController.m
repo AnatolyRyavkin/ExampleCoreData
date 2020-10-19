@@ -15,11 +15,19 @@
 @interface StoriesViewController()
 
 @property (nonatomic) NSArray* arrayStories;
+@property (atomic) NSArray<Client*>* arrayClients;
+@property (atomic) NSMutableArray<NSString*>* arrayNameClients;
+
+@property Story* story;
 
 @end
 
 @implementation StoriesViewController
 @synthesize arrayStories = _arrayStories;
+
+-(void)dealloc{
+    NSLog(@"dealloc");
+}
 
 -(NSArray*)arrayStories {
     if (!_arrayStories){
@@ -112,85 +120,45 @@
 }
 
 
-//на бекгроунде
-
-
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
-
-    dispatch_async(dispatch_queue_create("Q", DISPATCH_QUEUE_SERIAL), ^{
-
-                NSManagedObjectContext* context = PersistentManager.Shared.persistentContainer.newBackgroundContext;
-
-                __block NSArray<Client*>*arrayResultClients;
-
-                NSLog(@"1-%@", [NSString stringWithFormat: @"%@",[NSThread currentThread]]);
-
-                [context performBlockAndWait:^{
-
-                    NSLog(@"2-%@", [NSString stringWithFormat: @"%@",[NSThread currentThread]]);
-
-                    NSFetchRequest *requestStory = [NSFetchRequest fetchRequestWithEntityName:@"Story"];
-                    NSSortDescriptor*sortDescriptorStory = [[NSSortDescriptor alloc]initWithKey:@"name" ascending:YES];
-                    requestStory.sortDescriptors=@[sortDescriptorStory];
-                    NSError*error = nil;
-                    NSArray<Story*>*arrayResult = [context executeFetchRequest:requestStory error:&error];
-                    if(error!=nil)
-                        NSLog(@"error=%@",error);
-                    Story* story = arrayResult[indexPath.row];
-
-                                [context performBlockAndWait:^{
-
-                                        NSLog(@"3-%@", [NSString stringWithFormat: @"%@",[NSThread currentThread]]);
-
-                                        NSFetchRequest* requestClient = [NSFetchRequest fetchRequestWithEntityName:@"Client"];
-                                        NSSortDescriptor*sortDescriptorClient = [[NSSortDescriptor alloc]initWithKey:@"cache" ascending:YES];
-                                        requestClient.sortDescriptors=@[sortDescriptorClient];
-                                        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"creditHistory=%d&&region=%@",story.lavelCreditHistory,story.region];
-                                        requestClient.predicate = predicate;
-                                        NSError*error = nil;
-                                        arrayResultClients = [context executeFetchRequest:requestClient error:&error];
-                                        if(error!=nil)
-                                            NSLog(@"error=%@",error);
-                                }];
-
-//======================
-
-                    dispatch_sync(dispatch_get_main_queue(), ^{
-
-                        NSLog(@"4-%@", [NSString stringWithFormat: @"%@",[NSThread currentThread]]);
-
-                        UIAlertController* alert = [UIAlertController alertControllerWithTitle: [NSString stringWithFormat: @"Clients for %@ to predicate REGION & CREDITHISTORY", story.name]
-                                                                                       message: [NSString stringWithFormat:@" %@ - credHist%D",
-                                                                            story.region,story.lavelCreditHistory] preferredStyle:UIAlertControllerStyleAlert];
-
-                        for (Client* client in arrayResultClients){
-                            NSLog(@"client - %@", client.name);
-                            [alert addAction: [UIAlertAction actionWithTitle: [NSString stringWithFormat:@"%@ --- %@ --- %d", client.name,client.region,client.creditHistory] style:UIAlertActionStyleDefault handler:nil]];
-                        }
-                        if(arrayResultClients == 0){
-                            [alert addAction: [UIAlertAction actionWithTitle: @"" style: UIAlertActionStyleDefault handler:nil]];
-                            [alert addAction: [UIAlertAction actionWithTitle: @"dont clients" style: UIAlertActionStyleDefault handler:nil]];
-                        }
-
-                        [alert addAction: [UIAlertAction actionWithTitle: @"EXIT" style:UIAlertActionStyleDefault handler:nil]];
-
-                        UIWindow* window = [UIApplication.sharedApplication.windows firstObject];
-                        UINavigationController* nc = (UINavigationController*) window.rootViewController;
-                        UIViewController* vc = [nc visibleViewController];
-                        [vc presentViewController: alert animated:YES completion:nil];
-
-                    });
-
-//=====================================
-
-                }];
 
 
+    [PersistentManager.Shared performBlockAndSaveContextAndPerformCompletedBlockAtMainQueueBlock:^(NSManagedObjectContext * _Nonnull context) {
+        NSFetchRequest *requestStory = [NSFetchRequest fetchRequestWithEntityName:@"Story"];
+        NSSortDescriptor*sortDescriptorStory = [[NSSortDescriptor alloc]initWithKey:@"name" ascending:YES];
+        requestStory.sortDescriptors=@[sortDescriptorStory];
+        NSError*error = nil;
+        NSArray<Story*>*arrayResult = [context executeFetchRequest:requestStory error:&error];
+        if(error!=nil)
+            NSLog(@"error=%@",error);
+        self.story = arrayResult[indexPath.row];
 
-    });
+        NSFetchRequest* requestClient = [NSFetchRequest fetchRequestWithEntityName:@"Client"];
+        NSSortDescriptor*sortDescriptorClient = [[NSSortDescriptor alloc]initWithKey:@"cache" ascending:YES];
+        requestClient.sortDescriptors=@[sortDescriptorClient];
+        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"creditHistory=%d&&region=%@",self.story.lavelCreditHistory,self.story.region];
+        requestClient.predicate = predicate;
+        self.arrayClients = [context executeFetchRequest:requestClient error:&error];
+        self.arrayNameClients = [NSMutableArray new];
+        for (Client*client in self.arrayClients){
+            [self.arrayNameClients addObject: [NSString stringWithFormat:@"%@   ---   %@   ---   %@",client.region, (client.creditHistory==0)?@"bad":@"good",client.name]];
+        }
+        if(error!=nil)
+            NSLog(@"error=%@",error);
+    } completion:^(NSManagedObjectContext * _Nonnull context) {
+
+        UIWindow* window = [UIApplication.sharedApplication.windows firstObject];
+        UINavigationController* nc = (UINavigationController*) window.rootViewController;
+        PresenterTableViewController*pvc = [[PresenterTableViewController alloc]initArrayNames:self.arrayNameClients
+            andHeaderString:[NSString stringWithFormat:@"Clients match Story - %@ with region-%@ creditHistory-%@",self.story.name,self.story.region,
+                             (self.story.lavelCreditHistory==0)?@"bad":@"good"]];
+
+        [nc pushViewController:pvc animated:YES];
+
+    }];
 
 }
+
 
 
 @end

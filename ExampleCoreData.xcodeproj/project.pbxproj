@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		FD3EC380253C31C80054613A /* StoriesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FD3EC37F253C31C80054613A /* StoriesViewController.m */; };
+		FD3EC38B253D8BAA0054613A /* PresenterTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FD3EC38A253D8BAA0054613A /* PresenterTableViewController.m */; };
 		FD6759BF2539FA2E0042EA5F /* DelegateDataSourceDelegateFetchResControllertTableClients.m in Sources */ = {isa = PBXBuildFile; fileRef = FD6759BE2539FA2E0042EA5F /* DelegateDataSourceDelegateFetchResControllertTableClients.m */; };
 		FD6759EB253A4EFF0042EA5F /* PersistentManager.m in Sources */ = {isa = PBXBuildFile; fileRef = FD6759EA253A4EFF0042EA5F /* PersistentManager.m */; };
 		FD6759EF253A543A0042EA5F /* FetchControllersTableClients.m in Sources */ = {isa = PBXBuildFile; fileRef = FD6759EE253A543A0042EA5F /* FetchControllersTableClients.m */; };
@@ -33,6 +34,8 @@
 /* Begin PBXFileReference section */
 		FD3EC37E253C31C80054613A /* StoriesViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StoriesViewController.h; sourceTree = "<group>"; };
 		FD3EC37F253C31C80054613A /* StoriesViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = StoriesViewController.m; sourceTree = "<group>"; };
+		FD3EC389253D8BAA0054613A /* PresenterTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PresenterTableViewController.h; sourceTree = "<group>"; };
+		FD3EC38A253D8BAA0054613A /* PresenterTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PresenterTableViewController.m; sourceTree = "<group>"; };
 		FD6759BD2539FA2E0042EA5F /* DelegateDataSourceDelegateFetchResControllertTableClients.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DelegateDataSourceDelegateFetchResControllertTableClients.h; sourceTree = "<group>"; };
 		FD6759BE2539FA2E0042EA5F /* DelegateDataSourceDelegateFetchResControllertTableClients.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DelegateDataSourceDelegateFetchResControllertTableClients.m; sourceTree = "<group>"; };
 		FD6759E9253A4EFF0042EA5F /* PersistentManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PersistentManager.h; sourceTree = "<group>"; };
@@ -169,6 +172,8 @@
 				FD6759E6253A4DC90042EA5F /* Source */,
 				FD6759F4253A65FA0042EA5F /* CreatorBaseData.h */,
 				FD6759F5253A65FA0042EA5F /* CreatorBaseData.m */,
+				FD3EC389253D8BAA0054613A /* PresenterTableViewController.h */,
+				FD3EC38A253D8BAA0054613A /* PresenterTableViewController.m */,
 				FD3EC37E253C31C80054613A /* StoriesViewController.h */,
 				FD3EC37F253C31C80054613A /* StoriesViewController.m */,
 				FDF831362539E00E009EB4A3 /* InputViewController.h */,
@@ -259,6 +264,7 @@
 				FDF831382539E00E009EB4A3 /* InputViewController.m in Sources */,
 				FDF831192539DBE6009EB4A3 /* AppDelegate.m in Sources */,
 				FDF1F41A253B0806000BAB68 /* Bank+CoreDataProperties.m in Sources */,
+				FD3EC38B253D8BAA0054613A /* PresenterTableViewController.m in Sources */,
 				FD6759BF2539FA2E0042EA5F /* DelegateDataSourceDelegateFetchResControllertTableClients.m in Sources */,
 				FD6759EB253A4EFF0042EA5F /* PersistentManager.m in Sources */,
 				FDF1F418253B0806000BAB68 /* Story+CoreDataProperties.m in Sources */,

@@ -7,8 +7,9 @@
 
 #import <UIKit/UIKit.h>
 #import "Story+CoreDataClass.h"
+#import "PresenterTableViewController.h"
 
-NS_ASSUME_NONNULL_BEGIN
+
 
 @interface StoriesViewController : UIViewController<UITableViewDataSource,UITableViewDelegate>
 
@@ -16,4 +17,4 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-NS_ASSUME_NONNULL_END
+

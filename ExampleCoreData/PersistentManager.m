@@ -98,7 +98,6 @@
 
 
 - (void)performBlockAndSaveContext:(void (^)(NSManagedObjectContext* context))block{
-    //void (^blockCopy)(NSManagedObjectContext*) = [block copy];
     __weak PersistentManager* weakSelf = self;
     [self.persistentContainerQueue addOperation:[NSBlockOperation blockOperationWithBlock:^{
         NSManagedObjectContext* context = weakSelf.persistentContainer.newBackgroundContext;
@@ -112,7 +111,6 @@
 #pragma mark - sync run, only for context get in same thread were perform!!!
 
 - (void)performBlockAndSaveContext:(NSManagedObjectContext*) context withBlock: (void (^)(NSManagedObjectContext* context))block{
-    //void (^blockCopy)(NSManagedObjectContext*) = [block copy];
     [self.persistentContainerQueue addOperation:[NSBlockOperation blockOperationWithBlock:^{
         [context performBlockAndWait:^{
             block(context);
@@ -124,7 +122,6 @@
 #pragma mark - async run, only for context get in same thread were perform!!!
 
 - (void)performBlockDontWaitAndSaveContext:(NSManagedObjectContext*) context withBlock: (void (^)(NSManagedObjectContext* context))block{
-    //void (^blockCopy)(NSManagedObjectContext*) = [block copy];
     [self.persistentContainerQueue addOperation:[NSBlockOperation blockOperationWithBlock:^{
         [context performBlock:^{
             block(context);
@@ -138,7 +135,8 @@
 
 - (void)performBlockAndSaveContextAndPerformCompletedBlockAtMainQueueBlock: (void (^)(NSManagedObjectContext* context)) block
                                                 completion: (void (^)(NSManagedObjectContext* context)) completionBlock{
-    dispatch_async(dispatch_queue_create("q", DISPATCH_QUEUE_SERIAL), ^{
+
+    dispatch_async(dispatch_queue_create("q", DISPATCH_QUEUE_CONCURRENT), ^{
         __weak PersistentManager* weakSelf = self;
         NSManagedObjectContext* context = weakSelf.persistentContainer.newBackgroundContext;
         block(context);
@@ -147,6 +145,11 @@
             completionBlock(context);
         });
     });
+//NSLog(@"33-%@", [NSString stringWithFormat: @"%@",[NSThread currentThread]]);
+//    for(int i = 0; i < 30; i++) {
+//        NSLog(@"%d",i);
+//        sleep(1);
+//    }
 }
 
 #pragma mark - async perform block, after complition to main
