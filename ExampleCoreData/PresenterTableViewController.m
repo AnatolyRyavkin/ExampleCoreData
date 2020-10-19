@@ -51,7 +51,7 @@
         cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:@"cellPresent"];
     }
     NSString* clientName = self.arrayPresent[indexPath.row];
-    NSLog(@" --- %@",clientName);
+    //NSLog(@" --- %@",clientName);
     cell.textLabel.text = [NSString stringWithFormat:@"%@", clientName];
     return cell;
         

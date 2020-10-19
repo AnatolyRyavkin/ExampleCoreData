@@ -18,8 +18,6 @@ NS_ASSUME_NONNULL_BEGIN
 +(void)createBase;
 +(void)deleteBase;
 
-
-
 @end
 
 NS_ASSUME_NONNULL_END

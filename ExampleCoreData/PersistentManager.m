@@ -18,7 +18,6 @@
 
 @end
 
-
 @interface PersistentManager()
 
 @property (nonatomic, strong) NSOperationQueue* persistentContainerQueue;
@@ -41,6 +40,14 @@
 
 @synthesize persistentContainer = _persistentContainer;
 
+-(NSManagedObjectContext*)context {
+    return self.persistentContainer.viewContext;
+}
+
+-(NSManagedObjectContext*)contextBackground {
+    return self.persistentContainer.newBackgroundContext;
+}
+
 - (NSPersistentContainer *)persistentContainer {
     @synchronized (self) {
         if (_persistentContainer == nil) {
@@ -62,7 +69,6 @@
             _persistentContainer.viewContext.automaticallyMergesChangesFromParent = YES;
             _persistentContainer.viewContext.mergePolicy = NSMergeByPropertyStoreTrumpMergePolicy;
             _persistentContainer.viewContext.shouldDeleteInaccessibleFaults = true;
-            _persistentContainer.viewContext.automaticallyMergesChangesFromParent = true;
         }
 
     }
@@ -70,13 +76,7 @@
     return _persistentContainer;
 }
 
--(NSManagedObjectContext*)context {
-    return self.persistentContainer.viewContext;
-}
 
--(NSManagedObjectContext*)contextBackground {
-    return self.persistentContainer.newBackgroundContext;
-}
 
 #pragma mark - Queue for perform on background
 
@@ -92,7 +92,7 @@
     return  _persistentContainerQueue;
 }
 
-
+// создал функции для разных вариантов действий c context
 
 #pragma mark - perform block on background at self.persistentContainerQueue, if invoke several times to run SERIAL.
 
@@ -136,7 +136,7 @@
 - (void)performBlockAndSaveContextAndPerformCompletedBlockAtMainQueueBlock: (void (^)(NSManagedObjectContext* context)) block
                                                 completion: (void (^)(NSManagedObjectContext* context)) completionBlock{
 
-    dispatch_async(dispatch_queue_create("q", DISPATCH_QUEUE_CONCURRENT), ^{
+    dispatch_async(dispatch_queue_create("q", DISPATCH_QUEUE_SERIAL), ^{
         __weak PersistentManager* weakSelf = self;
         NSManagedObjectContext* context = weakSelf.persistentContainer.newBackgroundContext;
         block(context);
@@ -145,14 +145,10 @@
             completionBlock(context);
         });
     });
-//NSLog(@"33-%@", [NSString stringWithFormat: @"%@",[NSThread currentThread]]);
-//    for(int i = 0; i < 30; i++) {
-//        NSLog(@"%d",i);
-//        sleep(1);
-//    }
+
 }
 
-#pragma mark - async perform block, after complition to main
+#pragma mark - async perform block, after complition to main from default queue and context
 
 - (void)performBlockAndSaveContextAndPerformCompletedBlockAtMainQueue:(NSManagedObjectContext*) context
                                                 withBlock: (void (^)(NSManagedObjectContext* context)) block
@@ -168,7 +164,7 @@
 
 
 
-#pragma mark - Core Data Saving and remove support
+#pragma mark - Core Data remove
 
 -(void)removeBase{
 
@@ -177,6 +173,9 @@
     [[NSFileManager defaultManager] removeItemAtURL:storeURL error: nil];
     NSPersistentStoreCoordinator *storeCoordinator = self.persistentContainer.persistentStoreCoordinator;
     NSPersistentStore *store = [storeCoordinator.persistentStores lastObject];
+
+// если storeCoordinator и store не решабильны, то ошибка не пройдет
+
     @try {
         NSError *error = nil;
         [storeCoordinator removePersistentStore:store error:&error];

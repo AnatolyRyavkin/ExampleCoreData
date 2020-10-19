@@ -236,7 +236,7 @@ static ModeTable _modeTable;
 
 #pragma mark - ChangeMode
 
-
+//установка вида сортировки
 
 - (void)actionModeRegion {
     NSLog(@"actionModeRegion");
@@ -275,6 +275,7 @@ static ModeTable _modeTable;
 
 #pragma mark - WorkWithBase
 
+// очистить бд
 
 - (void)actionCleanBase {
     NSLog(@"actionCleanBase");
@@ -284,6 +285,9 @@ static ModeTable _modeTable;
 
 }
 
+
+//сделать новую бд
+
 - (void)actionNewBase {
     [self deleteFethedController];
     [CreatorBaseData createBase];
@@ -291,6 +295,9 @@ static ModeTable _modeTable;
     [self.tableView reloadData];
     NSLog(@"actionMakeBase");
 }
+
+
+//добавит клиеита
 
 - (void)actionAddClient {
     NSLog(@"actionAddClient");

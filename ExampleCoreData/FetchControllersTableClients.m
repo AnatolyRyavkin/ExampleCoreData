@@ -36,6 +36,8 @@
     NSSortDescriptor *sortDescriptor;
     NSString* _Nullable  sectionNameKeyPatch = nil;
 
+//варианты сортировки 
+
     switch (DelegateDataSourceDelegateFetchResControllertTableClients.modeTable) {
         case ModeTableCache:
             sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"cache" ascending:YES];

@@ -15,6 +15,8 @@
 
     [CreatorBaseData deleteBase];
 
+    // установка колличества клиентов и историй при создании  или пересоздании бд
+
     [PersistentManager.Shared performBlockAndSaveContext:^(NSManagedObjectContext * _Nonnull context) {
         if([[Bank alloc] initWithContext: context withNameBank: @"BANK" withCountClients:10000 withCountStory: 1000]){}
     }];
