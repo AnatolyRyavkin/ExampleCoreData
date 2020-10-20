@@ -13,7 +13,7 @@
  
  также здесь мой фреймворк https://github.com/AnatolyRyavkin/APIYandexOAuth.git для авторизациb <br>
  
- WorkAplication - моя часть проекта на Rx без UI (работа с Realm api Yandex)
+ WorkAplication - https://github.com/AnatolyRyavkin/WorkApplication.git ,моя часть проекта на Rx без UI (работа с Realm api Yandex)
  
  
  
