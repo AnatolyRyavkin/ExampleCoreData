@@ -11,7 +11,7 @@
  
  на swift не успел доделать, только в четверг время будет дописать (начал делать один в один)
  
- также здесь мой фреймворк APIYAndexOAuth для авторизациb <br>
+ также здесь мой фреймворк https://github.com/AnatolyRyavkin/APIYandexOAuth.git для авторизациb <br>
  
  WorkAplication - моя часть проекта на Rx без UI (работа с Realm api Yandex)
  
