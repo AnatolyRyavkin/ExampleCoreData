@@ -1,5 +1,5 @@
 # ExampleCoreData
- clients добавляются по одному или можно выставить сколько ставим при записи новой базы в CreatorBase.\n
+ clients добавляются по одному или можно выставить сколько ставим при записи новой базы в CreatorBase.<br>
  client удаляются свайпом.
  бд удаляется cleanBas.
  clients сортируются по cache, creditHistory,region.
